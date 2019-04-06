@@ -1,5 +1,6 @@
 package mcis.jsu.edu.crosswordmagic;
 
+import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -191,7 +192,8 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
 
             GridLayout squaresContainer = getActivity().findViewById(R.id.squaresContainer);
             TextView element = (TextView) squaresContainer.getChildAt(i);
-            element.setText("" + letters[row][col]);
+            //element.setText("" + letters[row][col]);
+            element.setText("" );
 
         }
 
@@ -234,7 +236,6 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
             updatePuzzleView();
 
         }
-
     }
 
 }
