@@ -137,8 +137,40 @@ public class CrosswordMagicViewModel extends ViewModel {
             // Word object to the "wordMap" hash map; for the key names, use the box number
             // followed by the direction (for example, "16D" for Box # 16, Down).
 
-            puzzleHeight.setValue(15); // DELETE THIS!
-            puzzleWidth.setValue(15); // DELETE THIS!
+
+
+
+            while((line = br.readLine()) != null){
+                fields = line.split("\t");
+
+                if(fields.length == Word.HEADER_FIELDS){
+                    int boardHeight = Integer.valueOf(fields[0]);
+                    int boardWidth = Integer.valueOf(fields[1]);
+
+                    puzzleHeight.setValue(boardHeight);
+                    puzzleWidth.setValue(boardWidth);
+
+                }
+                else{
+
+                    Word word = new Word(fields);
+
+                    int wordBoxNum = word.getBox();
+                    String wordDirection = word.getDirection();
+                    String wordName = wordBoxNum + wordDirection;
+
+                    wordMap.put(wordName,word);
+
+                    if(word.getDirection().equals(Word.ACROSS)){
+                        aString.append(word.getBox() + ": " + word.getClue() + "\n");
+                    }
+                    else{
+                        dString.append(word.getBox() + ": " + word.getClue() + "\n");
+                    }
+                }
+            }
+
+            br.close();
 
         } catch (Exception e) {}
 
@@ -163,7 +195,26 @@ public class CrosswordMagicViewModel extends ViewModel {
 
             // INSERT YOUR CODE HERE
 
+            int row = w.getRow();
+            int col = w.getColumn();
+            char[] letters = w.getWord().toCharArray();
+            int boxNum = w.getBox();
+            String direction = w.getDirection();
+
+            aNumbers[row][col] = boxNum;
+
+            for(int i = 0; i < letters.length; ++ i){
+
+                if(direction.equals(Word.DOWN)){
+                    aLetters[row + i][col] = letters[i];
+                }
+                else{
+                    aLetters[row][col + i] = letters[i];
+                }
+            }
         }
+
+
 
         this.letters.setValue(aLetters);
         this.numbers.setValue(aNumbers);
