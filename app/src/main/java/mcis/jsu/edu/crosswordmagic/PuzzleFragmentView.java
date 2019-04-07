@@ -192,8 +192,7 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
 
             GridLayout squaresContainer = getActivity().findViewById(R.id.squaresContainer);
             TextView element = (TextView) squaresContainer.getChildAt(i);
-            //element.setText("" + letters[row][col]);
-            element.setText("" );
+            element.setText("" + letters[row][col]);
 
         }
 

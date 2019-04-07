@@ -141,6 +141,7 @@ public class CrosswordMagicViewModel extends ViewModel {
 
 
             while((line = br.readLine()) != null){
+                line.trim();
                 fields = line.split("\t");
 
                 if(fields.length == Word.HEADER_FIELDS){
@@ -206,10 +207,12 @@ public class CrosswordMagicViewModel extends ViewModel {
             for(int i = 0; i < letters.length; ++ i){
 
                 if(direction.equals(Word.DOWN)){
-                    aLetters[row + i][col] = letters[i];
+                    //aLetters[row + i][col] = letters[i];
+                    aLetters[row + i][col] = ' ';
                 }
                 else{
-                    aLetters[row][col + i] = letters[i];
+                    //aLetters[row][col + i] = letters[i];
+                    aLetters[row][col + i] = ' ';
                 }
             }
         }
