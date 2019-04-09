@@ -2,15 +2,18 @@ package mcis.jsu.edu.crosswordmagic;
 
 import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v7.widget.GridLayout;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +23,8 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
 
     View root;
     private CrosswordMagicViewModel model;
+    private String userInput;
+    private int boxNum = 0;
 
     public PuzzleFragmentView() {}
 
@@ -28,6 +33,7 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
 
         super.onCreate(savedInstanceState);
         model = ViewModelProviders.of(getActivity()).get(CrosswordMagicViewModel.class);
+        userInput = "";
 
     }
 
@@ -221,18 +227,78 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
 
         if (numbers[row][col] != 0) {
 
-            Toast toast=Toast.makeText(getContext(), "You have just tapped Square " + numbers[row][col], Toast.LENGTH_SHORT);
-            toast.show();
+            this.boxNum = numbers[row][col];
 
-            /* Add an "X" to Clicked Square */
-
-            GridLayout squaresContainer = getActivity().findViewById(R.id.squaresContainer);
-            TextView element = (TextView) squaresContainer.getChildAt(index);
-            element.setText("X");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.input_title);
+            builder.setMessage(R.string.input_text);
+            final EditText input = new EditText(getActivity());
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int i) {
+                    userInput = input.getText().toString();
+                    checkInput();
+                }
+            });
+            builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int i) {
+                    userInput = "";
+                    d.cancel();
+                }
+            });
+            AlertDialog aboutDialog = builder.show();
 
             /* Update Grid Contents */
+            updatePuzzleView();
+
+        }
+    }
+
+    private void checkInput(){
+        userInput.trim();
+
+        if((!userInput.isEmpty()) && (boxNum != 0)){
+
+            userInput = userInput.toUpperCase();
+            Word aWord = model.getWordById(boxNum + Word.ACROSS);
+            Word dWord = model.getWordById(boxNum + Word.DOWN);
+
+            if(aWord != null){
+                if(userInput.equals(aWord.getWord())){
+                    model.addWordToGrid(aWord);
+
+                    Toast toast=Toast.makeText(getContext(), "Congratulations! You correctly guessed " + boxNum + "A.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+            if(dWord != null){
+                if(userInput.equals(dWord.getWord())){
+                    model.addWordToGrid(dWord);
+
+                    Toast toast=Toast.makeText(getContext(), "Congratulations! You correctly guessed " + boxNum + "D.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
 
             updatePuzzleView();
+
+            boolean puzzleComplete = model.isPuzzleComplete();
+
+            if(puzzleComplete){
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.puzzle_complete_title);
+                builder.setMessage(R.string.puzzle_complete_text);
+                builder.setCancelable(false);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int i) {}
+                });
+                AlertDialog aboutDialog = builder.show();
+
+            }
 
         }
     }

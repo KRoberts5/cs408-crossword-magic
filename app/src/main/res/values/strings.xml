@@ -3,4 +3,8 @@
     <string name="action_settings">Settings</string>
     <string name="across">Across:</string>
     <string name="down">Down:</string>
+    <string name="input_title">Please Input Answer</string>
+    <string name="input_text">Please type the value you would like to enter into the space.</string>
+    <string name="puzzle_complete_title">Puzzle Complete</string>
+    <string name="puzzle_complete_text">Congratulations! You completed the puzzle.</string>
 </resources>

@@ -224,4 +224,49 @@ public class CrosswordMagicViewModel extends ViewModel {
 
     }
 
+    public Word getWordById(String id){
+        Word w = words.getValue().get(id);
+        return w;
+    }
+
+    public void addWordToGrid(Word w){
+
+        Character[][] letterTemp = letters.getValue();
+
+        String word = w.getWord();
+        String direction = w.getDirection();
+        int row = w.getRow();
+        int col = w.getColumn();
+
+        for(int i = 0; i < word.length(); ++i){
+            char c = word.charAt(i);
+
+            if(direction.equals(Word.ACROSS))
+                letterTemp[row][col + i] = c;
+            else
+                letterTemp[row + i][col] = c;
+
+        }
+
+        letters.setValue(letterTemp);
+    }
+
+    public boolean isPuzzleComplete(){
+        Character[][] puzzle = letters.getValue();
+
+        int numRows = puzzleHeight.getValue();
+        int numCols = puzzleWidth.getValue();
+
+        boolean complete = true;
+
+        for(int i = 0; i < numRows; ++i){
+            for(int j = 0; j < numCols; ++j){
+                if(puzzle[i][j].equals(' '))
+                    complete = false;
+            }
+        }
+
+        return complete;
+    }
+
 }
