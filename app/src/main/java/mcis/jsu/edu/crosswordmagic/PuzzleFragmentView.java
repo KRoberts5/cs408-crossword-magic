@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,8 @@ import android.widget.Toast;
 import java.util.HashMap;
 
 public class PuzzleFragmentView extends Fragment implements View.OnClickListener {
+
+    private final String SECRET_ORDER = "EXECUTEORDER66";
 
     View root;
     private CrosswordMagicViewModel model;
@@ -260,47 +263,62 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
     private void checkInput(){
         userInput.trim();
 
-        if((!userInput.isEmpty()) && (boxNum != 0)){
+        if((!userInput.isEmpty()) && (boxNum != 0)) {
 
             userInput = userInput.toUpperCase();
-            Word aWord = model.getWordById(boxNum + Word.ACROSS);
-            Word dWord = model.getWordById(boxNum + Word.DOWN);
+            String acrossId = boxNum + Word.ACROSS;
+            String downId = boxNum + Word.DOWN;
 
-            if(aWord != null){
-                if(userInput.equals(aWord.getWord())){
-                    model.addWordToGrid(aWord);
+            boolean acrossMatch = model.compareInputToWord(acrossId, userInput);
+            boolean downMatch = model.compareInputToWord(downId, userInput);
 
-                    Toast toast=Toast.makeText(getContext(), "Congratulations! You correctly guessed " + boxNum + "A.", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
+            if (acrossMatch) {
+                Toast toast = Toast.makeText(getContext(), "Congratulations! You correctly guessed " + acrossId, Toast.LENGTH_SHORT);
+                toast.show();
+            } else if (downMatch) {
+                Toast toast = Toast.makeText(getContext(), "Congratulations! You correctly guessed " + downId, Toast.LENGTH_SHORT);
+                toast.show();
+            } else {
+                Toast toast = Toast.makeText(getContext(), "Incorrect Guess ", Toast.LENGTH_SHORT);
+                toast.show();
             }
-            if(dWord != null){
-                if(userInput.equals(dWord.getWord())){
-                    model.addWordToGrid(dWord);
 
-                    Toast toast=Toast.makeText(getContext(), "Congratulations! You correctly guessed " + boxNum + "D.", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
+            if(userInput.equals(this.SECRET_ORDER)){
+                model.autoCompleteGame();
             }
+
 
             updatePuzzleView();
 
             boolean puzzleComplete = model.isPuzzleComplete();
 
-            if(puzzleComplete){
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.puzzle_complete_title);
-                builder.setMessage(R.string.puzzle_complete_text);
-                builder.setCancelable(false);
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface d, int i) {}
-                });
-                AlertDialog aboutDialog = builder.show();
+            if (puzzleComplete) {
+                this.createEndGameDialog();
 
             }
-
         }
+    }
+
+    private void createEndGameDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.puzzle_complete_title);
+        builder.setMessage(R.string.puzzle_complete_text);
+        builder.setCancelable(false);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface d, int i) {
+                endGame();
+                ViewPager p = (ViewPager)getActivity().findViewById(R.id.pager);
+                p.setCurrentItem(TabPagerAdapter.MAIN_FRAGMENT);
+
+            }
+        });
+        AlertDialog aboutDialog = builder.show();
+    }
+
+    private void endGame(){
+        model.clearPuzzle();
+        updatePuzzleView();
     }
 
 }

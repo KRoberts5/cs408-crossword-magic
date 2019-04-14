@@ -269,4 +269,43 @@ public class CrosswordMagicViewModel extends ViewModel {
         return complete;
     }
 
+    public boolean compareInputToWord(String id, String input){
+        boolean match = false;
+
+        Word w = words.getValue().get(id);
+        input = input.toUpperCase();
+
+        if(w != null){
+            if(input.equals(w.getWord())){
+                this.addWordToGrid(w);
+                match = true;
+            }
+        }
+
+        return match;
+    }
+
+    public void clearPuzzle(){
+        Character[][] l = letters.getValue();
+
+        for(int i = 0; i < this.puzzleHeight.getValue(); ++i){
+            for(int j = 0; j < this.puzzleWidth.getValue(); ++j){
+                if(!l[i][j].equals('*')){
+                    l[i][j] = ' ';
+                }
+            }
+        }
+
+        this.letters.setValue(l);
+
+    }
+
+    public void autoCompleteGame(){
+        HashMap<String,Word> w = words.getValue();
+
+        for(HashMap.Entry<String, Word> e : w.entrySet()){
+            this.addWordToGrid(e.getValue());
+        }
+    }
+
 }
