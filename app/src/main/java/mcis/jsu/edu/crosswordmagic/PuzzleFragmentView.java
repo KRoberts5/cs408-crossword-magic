@@ -232,9 +232,24 @@ public class PuzzleFragmentView extends Fragment implements View.OnClickListener
 
             this.boxNum = numbers[row][col];
 
+            String aClue = "";
+            String dClue = "";
+
+            Word aWord = model.getWordById(boxNum + Word.ACROSS);
+            Word dWord = model.getWordById(boxNum + Word.DOWN);
+
+            StringBuilder inputMessage = new StringBuilder();
+            inputMessage.append("Clue:\n");
+
+            if(aWord != null)
+                inputMessage.append(boxNum + Word.ACROSS + ": " + aWord.getClue() + "\n\n");
+            if(dWord != null)
+                inputMessage.append(boxNum + Word.DOWN + ": " + dWord.getClue());
+
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.input_title);
-            builder.setMessage(R.string.input_text);
+           // builder.setMessage(R.string.input_text);
+            builder.setMessage(inputMessage);
             final EditText input = new EditText(getActivity());
             input.setInputType(InputType.TYPE_CLASS_TEXT);
             builder.setView(input);
