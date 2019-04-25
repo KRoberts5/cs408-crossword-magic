@@ -431,4 +431,12 @@ public class CrosswordMagicViewModel extends ViewModel {
         return saved;
     }
 
+    public void clearCurrentSaveData(){
+
+        String[] whereArg = {String.valueOf(puzzleID.getValue())};
+
+        SQLiteDatabase db = puzzleDB.getValue().getWritableDatabase();
+        db.delete(PuzzleDatabase.TABLE_NAME,WHERE,whereArg);
+    }
+
 }

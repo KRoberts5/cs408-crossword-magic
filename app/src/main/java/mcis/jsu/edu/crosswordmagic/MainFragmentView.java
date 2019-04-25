@@ -32,12 +32,15 @@ public class MainFragmentView extends Fragment implements View.OnClickListener {
         Button b = root.findViewById(R.id.button);
         b.setOnClickListener(this);
 
+
         return root;
 
     }
 
     @Override
     public void onClick(View v) {
+
+
 
         ViewPager p = (ViewPager)getActivity().findViewById(R.id.pager);
         p.setCurrentItem(TabPagerAdapter.PUZZLE_FRAGMENT);

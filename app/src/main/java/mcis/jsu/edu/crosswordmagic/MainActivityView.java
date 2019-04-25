@@ -1,18 +1,23 @@
 package mcis.jsu.edu.crosswordmagic;
 
+import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.design.widget.*;
 import android.support.v4.view.*;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import static android.provider.BaseColumns._ID;
@@ -72,6 +77,32 @@ public class MainActivityView extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        else if( id == R.id.clearSave){
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Confirm Clear");
+            builder.setMessage("Are you sure you want to clear the current save data?");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int i) {
+                    try{
+                        model.clearCurrentSaveData();
+                        model.clearPuzzle();
+                    }catch (Exception e) {
+                    }
+
+                }
+            });
+            builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int i) {
+                }
+            });
+            AlertDialog aboutDialog = builder.show();
+
+
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
 
@@ -127,7 +158,4 @@ public class MainActivityView extends AppCompatActivity {
         return height;
 
     }
-
-
-
 }
