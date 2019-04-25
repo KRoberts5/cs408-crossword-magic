@@ -15,7 +15,7 @@ public class PuzzleDatabase extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "puzzleSaveData.db";
     private static final int DATABASE_VERSION = 1;
     public static final String TABLE_NAME = "saveData";
-    public static final String PUZZLE_NAME_FIELD = "puzzlename";
+    public static final String PUZZLE_ID_FIELD = "puzzleid";
     public static final String BOX_NUM_FIELD = "boxnum";
     public static final String DIRECTION_FIELD = "direction";
     public static final String AUTHORITY = "mcis.jsu.edu.crosswordmagic";
@@ -25,11 +25,11 @@ public class PuzzleDatabase extends SQLiteOpenHelper {
         context = ctx;
 
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (_ID INTEGER PRIMARY KEY AUTOINCREMENT, puzzlename TEXT NOT NULL, boxnum INTEGER NOT NULL, direction TEXT NOT NULL);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (_ID INTEGER PRIMARY KEY AUTOINCREMENT, puzzleid INTEGER NOT NULL, boxnum INTEGER NOT NULL, direction TEXT NOT NULL);");
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE saveData ( _ID INTEGER PRIMARY KEY AUTOINCREMENT, puzzlename TEXT NOT NULL, boxnum INTEGER NOT NULL, direction TEXT NOT NULL);");
+        db.execSQL("CREATE TABLE saveData ( _ID INTEGER PRIMARY KEY AUTOINCREMENT, puzzleid INTEGER NOT NULL, boxnum INTEGER NOT NULL, direction TEXT NOT NULL);");
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

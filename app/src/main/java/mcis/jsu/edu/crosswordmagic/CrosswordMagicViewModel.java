@@ -49,7 +49,9 @@ public class CrosswordMagicViewModel extends ViewModel {
 
     private final MutableLiveData<PuzzleDatabase> puzzleDB = new MutableLiveData<>();
     private static String[] FROM = { _ID, PuzzleDatabase.BOX_NUM_FIELD, PuzzleDatabase.DIRECTION_FIELD };
-    private static String WHERE = PuzzleDatabase.PUZZLE_NAME_FIELD + " = ?";
+    private static String WHERE = PuzzleDatabase.PUZZLE_ID_FIELD + " = ?";
+    //private static String[] FROM_SAVED_QUERY = {""};
+    private static String WHERE_SAVED_QUERY = PuzzleDatabase.PUZZLE_ID_FIELD + " = ? AND " + PuzzleDatabase.DIRECTION_FIELD + " = ? AND " + PuzzleDatabase.BOX_NUM_FIELD + " = ?";
 
 
     /* Setters / Getters */
@@ -82,6 +84,11 @@ public class CrosswordMagicViewModel extends ViewModel {
         if ( (puzzleID.getValue() == null) || (puzzleID.getValue() != id) ) {
             getPuzzleData(id);
             puzzleID.setValue(id);
+
+            if(puzzleDB.getValue() == null)
+                puzzleDB.setValue(new PuzzleDatabase(this.getContext()));
+
+            this.loadSavedWords();
         }
     }
 
@@ -247,8 +254,6 @@ public class CrosswordMagicViewModel extends ViewModel {
         this.letters.setValue(aLetters);
         this.numbers.setValue(aNumbers);
 
-        this.loadSavedWords();
-
     }
 
     private void loadSavedWords(){
@@ -307,11 +312,14 @@ public class CrosswordMagicViewModel extends ViewModel {
 
         letters.setValue(letterTemp);
 
-        try {
-            this.saveWord(w);
+        if(!this.isAlreadySaved(w)) {
+            try {
+                this.saveWord(w);
+            } catch (Exception e) {
+                Toast toast = Toast.makeText(getContext(), "oops", Toast.LENGTH_SHORT);
+                toast.show();
+            }
         }
-        catch (Exception e){}
-
     }
 
     public boolean isPuzzleComplete(){
@@ -372,13 +380,12 @@ public class CrosswordMagicViewModel extends ViewModel {
     }
 
     private void saveWord( Word w){
-        String puzzleName = this.puzzleName.getValue().toUpperCase();
         String direction = w.getDirection();
         int boxNum = w.getBox();
 
         SQLiteDatabase db = puzzleDB.getValue().getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(PuzzleDatabase.PUZZLE_NAME_FIELD, puzzleName);
+        values.put(PuzzleDatabase.PUZZLE_ID_FIELD, puzzleID.getValue());
         values.put(PuzzleDatabase.BOX_NUM_FIELD,boxNum);
         values.put(PuzzleDatabase.DIRECTION_FIELD,direction);
         db.insertOrThrow(PuzzleDatabase.TABLE_NAME, null, values);
@@ -387,11 +394,11 @@ public class CrosswordMagicViewModel extends ViewModel {
 
     public ArrayList<String> getSavedWords(String puzzleName){
         ArrayList<String> wordData = new ArrayList<>();
-        puzzleName = puzzleName.toUpperCase();
-        String[] puzzleNameArg = {puzzleName};
+
+        String[] puzzleIDArg = {String.valueOf(puzzleID.getValue())};
 
         SQLiteDatabase db = puzzleDB.getValue().getReadableDatabase();
-        Cursor cursor = db.query(PuzzleDatabase.TABLE_NAME, FROM, WHERE, puzzleNameArg, null, null, null);
+        Cursor cursor = db.query(PuzzleDatabase.TABLE_NAME, FROM, WHERE, puzzleIDArg, null, null, null);
 
         while(cursor.moveToNext()){
             int boxNum = cursor.getInt(1);
@@ -404,6 +411,24 @@ public class CrosswordMagicViewModel extends ViewModel {
 
         return wordData;
 
+    }
+
+    private boolean isAlreadySaved(Word w){
+
+        boolean saved = false;
+
+        String direction = w.getDirection();
+        int boxnum = w.getBox();
+
+        String[] selectionArg = {String.valueOf(puzzleID.getValue()), direction, String.valueOf(boxnum)};
+
+        SQLiteDatabase db = puzzleDB.getValue().getWritableDatabase();
+        Cursor c = db.query(PuzzleDatabase.TABLE_NAME,null,WHERE_SAVED_QUERY,selectionArg,null,null,null);
+
+       if(c.getCount() > 0)
+           saved = true;
+
+        return saved;
     }
 
 }
