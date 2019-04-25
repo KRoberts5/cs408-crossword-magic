@@ -87,7 +87,7 @@ public class CrosswordMagicViewModel extends ViewModel {
 
     public void setDatabase(PuzzleDatabase p){
         this.puzzleDB.setValue(p);
-        this.loadSavedWords();
+
     }
 
     public Context getContext() {
@@ -247,7 +247,7 @@ public class CrosswordMagicViewModel extends ViewModel {
         this.letters.setValue(aLetters);
         this.numbers.setValue(aNumbers);
 
-
+        this.loadSavedWords();
 
     }
 

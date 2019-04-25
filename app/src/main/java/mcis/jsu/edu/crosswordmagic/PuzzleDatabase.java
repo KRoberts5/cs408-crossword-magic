@@ -23,6 +23,9 @@ public class PuzzleDatabase extends SQLiteOpenHelper {
     public PuzzleDatabase(Context ctx) {
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
         context = ctx;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (_ID INTEGER PRIMARY KEY AUTOINCREMENT, puzzlename TEXT NOT NULL, boxnum INTEGER NOT NULL, direction TEXT NOT NULL);");
     }
     @Override
     public void onCreate(SQLiteDatabase db) {

@@ -38,8 +38,15 @@ public class MainActivityView extends AppCompatActivity {
         configureTabLayout();
 
         /* Save Context Reference and Default Puzzle ID in Model */
+        puzzleDB = new PuzzleDatabase(this);
+
+
+
+
 
         model.setContext(this);
+
+        model.setDatabase(puzzleDB);
         model.setPuzzleID(R.raw.puzzle);
 
         /* Get Display Properties; Save to Model */
@@ -51,11 +58,7 @@ public class MainActivityView extends AppCompatActivity {
         model.setWindowWidthDp(dm.widthPixels);
         model.setWindowOverheadDp(getOverheadHeight());
 
-        puzzleDB = new PuzzleDatabase(this);
 
-
-
-        model.setDatabase(puzzleDB);
 
 
     }
