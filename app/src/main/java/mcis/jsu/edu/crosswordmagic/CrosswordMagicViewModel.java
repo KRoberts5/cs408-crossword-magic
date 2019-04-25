@@ -1,14 +1,24 @@
 package mcis.jsu.edu.crosswordmagic;
 
+import android.app.ActivityManager;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.content.ContentProvider;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static android.provider.BaseColumns._ID;
 
 public class CrosswordMagicViewModel extends ViewModel {
 
@@ -27,12 +37,20 @@ public class CrosswordMagicViewModel extends ViewModel {
     /* Puzzle Data */
 
     private final MutableLiveData<Integer> puzzleID = new MutableLiveData<Integer>();
+    private final MutableLiveData<String> puzzleName = new MutableLiveData<>();
     private final MutableLiveData<HashMap<String, Word>> words = new MutableLiveData<>();
     private final MutableLiveData<String> aClues = new MutableLiveData<String>();
     private final MutableLiveData<String> dClues = new MutableLiveData<String>();
 
     private final MutableLiveData<Character[][]> letters = new MutableLiveData<Character[][]>();
     private final MutableLiveData<Integer[][]> numbers = new MutableLiveData<Integer[][]>();
+
+    //Database
+
+    private final MutableLiveData<PuzzleDatabase> puzzleDB = new MutableLiveData<>();
+    private static String[] FROM = { _ID, PuzzleDatabase.BOX_NUM_FIELD, PuzzleDatabase.DIRECTION_FIELD };
+    private static String WHERE = PuzzleDatabase.PUZZLE_NAME_FIELD + " = ?";
+
 
     /* Setters / Getters */
 
@@ -65,6 +83,11 @@ public class CrosswordMagicViewModel extends ViewModel {
             getPuzzleData(id);
             puzzleID.setValue(id);
         }
+    }
+
+    public void setDatabase(PuzzleDatabase p){
+        this.puzzleDB.setValue(p);
+        this.loadSavedWords();
     }
 
     public Context getContext() {
@@ -147,9 +170,11 @@ public class CrosswordMagicViewModel extends ViewModel {
                 if(fields.length == Word.HEADER_FIELDS){
                     int boardHeight = Integer.valueOf(fields[0]);
                     int boardWidth = Integer.valueOf(fields[1]);
+                    String name = fields[2];
 
                     puzzleHeight.setValue(boardHeight);
                     puzzleWidth.setValue(boardWidth);
+                    puzzleName.setValue(name);
 
                 }
                 else{
@@ -222,6 +247,38 @@ public class CrosswordMagicViewModel extends ViewModel {
         this.letters.setValue(aLetters);
         this.numbers.setValue(aNumbers);
 
+
+
+    }
+
+    private void loadSavedWords(){
+        ArrayList<String> savedWords = this.getSavedWords(this.puzzleName.getValue());
+        Character[][] letterTemp = letters.getValue();
+
+
+        for(String s: savedWords){
+            Word w = this.words.getValue().get(s);
+
+            if(w != null) {
+
+                String word = w.getWord();
+                String direction = w.getDirection();
+                int row = w.getRow();
+                int col = w.getColumn();
+
+                for (int i = 0; i < word.length(); ++i) {
+                    char c = word.charAt(i);
+
+                    if (direction.equals(Word.ACROSS))
+                        letterTemp[row][col + i] = c;
+                    else
+                        letterTemp[row + i][col] = c;
+
+                }
+            }
+        }
+
+        letters.setValue(letterTemp);
     }
 
     public Word getWordById(String id){
@@ -249,6 +306,12 @@ public class CrosswordMagicViewModel extends ViewModel {
         }
 
         letters.setValue(letterTemp);
+
+        try {
+            this.saveWord(w);
+        }
+        catch (Exception e){}
+
     }
 
     public boolean isPuzzleComplete(){
@@ -306,6 +369,41 @@ public class CrosswordMagicViewModel extends ViewModel {
         for(HashMap.Entry<String, Word> e : w.entrySet()){
             this.addWordToGrid(e.getValue());
         }
+    }
+
+    private void saveWord( Word w){
+        String puzzleName = this.puzzleName.getValue().toUpperCase();
+        String direction = w.getDirection();
+        int boxNum = w.getBox();
+
+        SQLiteDatabase db = puzzleDB.getValue().getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(PuzzleDatabase.PUZZLE_NAME_FIELD, puzzleName);
+        values.put(PuzzleDatabase.BOX_NUM_FIELD,boxNum);
+        values.put(PuzzleDatabase.DIRECTION_FIELD,direction);
+        db.insertOrThrow(PuzzleDatabase.TABLE_NAME, null, values);
+
+    }
+
+    public ArrayList<String> getSavedWords(String puzzleName){
+        ArrayList<String> wordData = new ArrayList<>();
+        puzzleName = puzzleName.toUpperCase();
+        String[] puzzleNameArg = {puzzleName};
+
+        SQLiteDatabase db = puzzleDB.getValue().getReadableDatabase();
+        Cursor cursor = db.query(PuzzleDatabase.TABLE_NAME, FROM, WHERE, puzzleNameArg, null, null, null);
+
+        while(cursor.moveToNext()){
+            int boxNum = cursor.getInt(1);
+            String direction = cursor.getString(2);
+            direction = direction.toUpperCase();
+
+            wordData.add(boxNum + direction);
+        }
+
+
+        return wordData;
+
     }
 
 }

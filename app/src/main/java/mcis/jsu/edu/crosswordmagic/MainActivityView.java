@@ -1,6 +1,9 @@
 package mcis.jsu.edu.crosswordmagic;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,9 +14,15 @@ import android.view.MenuItem;
 import android.support.design.widget.*;
 import android.support.v4.view.*;
 
+import java.util.ArrayList;
+import static android.provider.BaseColumns._ID;
+
 public class MainActivityView extends AppCompatActivity {
 
+
+
     private CrosswordMagicViewModel model;
+    private PuzzleDatabase puzzleDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +50,13 @@ public class MainActivityView extends AppCompatActivity {
         model.setWindowHeightDp(dm.heightPixels);
         model.setWindowWidthDp(dm.widthPixels);
         model.setWindowOverheadDp(getOverheadHeight());
+
+        puzzleDB = new PuzzleDatabase(this);
+
+
+
+        model.setDatabase(puzzleDB);
+
 
     }
 
@@ -114,5 +130,7 @@ public class MainActivityView extends AppCompatActivity {
         return height;
 
     }
+
+
 
 }
